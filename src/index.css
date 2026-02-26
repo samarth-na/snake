@@ -1,13 +1,14 @@
 :root {
-    --bg-color: #faf8f5;
-    --board-bg: #f0ede8;
-    --grid-line: #e0dcd5;
+    --bg-color: #f5f5dc;
+    --board-bg: #7cb342;
+    --grid-light: #9ccc65;
+    --grid-dark: #689f38;
     --snake-body: #2a2a2a;
     --snake-head: #1a1a1a;
-    --food-color: #c94c4c;
+    --food-color: #e53935;
     --text-color: #2a2a2a;
-    --border-color: #d0ccc5;
-    --shadow-color: rgba(42, 42, 42, 0.15);
+    --border-color: #558b2f;
+    --shadow-color: rgba(42, 42, 42, 0.2);
 }
 
 * {
@@ -44,7 +45,7 @@ body {
     display: flex;
     gap: 40px;
     padding: 15px 30px;
-    background: var(--board-bg);
+    background: #fff;
     border: 3px solid var(--border-color);
     border-radius: 8px;
     box-shadow: 4px 4px 0 var(--shadow-color);
@@ -74,7 +75,7 @@ body {
     position: relative;
     width: 100%;
     aspect-ratio: 1;
-    background: var(--board-bg);
+    background-color: var(--grid-dark);
     border: 3px solid var(--border-color);
     border-radius: 8px;
     box-shadow: 4px 4px 0 var(--shadow-color);
@@ -85,10 +86,16 @@ body {
     position: absolute;
     inset: 0;
     background-image:
-        linear-gradient(var(--grid-line) 1px, transparent 1px),
-        linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
-    background-size: 5% 5%;
-    opacity: 0.5;
+        linear-gradient(45deg, var(--grid-light) 25%, transparent 25%),
+        linear-gradient(-45deg, var(--grid-light) 25%, transparent 25%),
+        linear-gradient(45deg, transparent 75%, var(--grid-light) 75%),
+        linear-gradient(-45deg, transparent 75%, var(--grid-light) 75%);
+    background-size: 10% 10%;
+    background-position:
+        0 0,
+        0 5%,
+        5% -5%,
+        -5% 0%;
 }
 
 /* Snake */
@@ -111,7 +118,7 @@ body {
     position: absolute;
     width: 20%;
     height: 20%;
-    background: var(--bg-color);
+    background: #fff;
     border-radius: 50%;
     top: 20%;
 }
@@ -128,7 +135,7 @@ body {
 .food {
     position: absolute;
     background: var(--food-color);
-    border: 2px solid var(--snake-head);
+    border: 2px solid #fff;
     border-radius: 50%;
     animation: pulse 0.8s ease-in-out infinite;
 }
@@ -147,7 +154,7 @@ body {
 .game-overlay {
     position: absolute;
     inset: 0;
-    background: rgba(250, 248, 245, 0.9);
+    background: rgba(245, 245, 220, 0.95);
     display: flex;
     justify-content: center;
     align-items: center;
@@ -177,6 +184,34 @@ body {
     margin-bottom: 10px;
 }
 
+.mode-select-label {
+    font-size: 14px;
+    font-weight: bold;
+    letter-spacing: 3px;
+    color: var(--border-color);
+    margin-bottom: 10px;
+}
+
+.mode-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 10px;
+}
+
+.mode-btn {
+    min-width: 200px;
+}
+
+.mode-desc {
+    display: block;
+    font-size: 10px;
+    font-weight: normal;
+    letter-spacing: 1px;
+    color: #888;
+    margin-top: 4px;
+}
+
 .overlay-title {
     font-size: 36px;
     font-weight: bold;
@@ -196,7 +231,7 @@ body {
     font-weight: bold;
     letter-spacing: 2px;
     color: var(--text-color);
-    background: var(--board-bg);
+    background: #fff;
     border: 3px solid var(--border-color);
     border-radius: 6px;
     cursor: pointer;
@@ -241,7 +276,7 @@ body {
     font-size: 24px;
     font-family: "Courier New", Courier, monospace;
     font-weight: bold;
-    background: var(--board-bg);
+    background: #fff;
     border: 3px solid var(--border-color);
     border-radius: 8px;
     cursor: pointer;

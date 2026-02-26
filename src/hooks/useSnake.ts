@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect, useRef } from "react";
-import type { Direction, GameState } from "../types/game";
+import type { Direction, GameState, GameMode } from "../types/game";
 import { INITIAL_SPEED, SPEED_INCREMENT, MIN_SPEED } from "../types/game";
 import {
     createInitialSnake,
@@ -17,14 +17,15 @@ export function useSnake() {
         direction: "UP",
         nextDirection: "UP",
         score: 0,
-        highScore: getHighScore(),
-        status: "idle",
+        highScore: getHighScore("classic"),
+        status: "selecting",
         speed: INITIAL_SPEED,
+        mode: "classic",
     }));
 
     const gameLoopRef = useRef<number | null>(null);
 
-    const startGame = useCallback(() => {
+    const selectMode = useCallback((mode: GameMode) => {
         const initialSnake = createInitialSnake();
         setGameState({
             snake: initialSnake,
@@ -32,10 +33,18 @@ export function useSnake() {
             direction: "UP",
             nextDirection: "UP",
             score: 0,
-            highScore: getHighScore(),
-            status: "playing",
+            highScore: getHighScore(mode),
+            status: "idle",
             speed: INITIAL_SPEED,
+            mode,
         });
+    }, []);
+
+    const startGame = useCallback(() => {
+        setGameState((prev) => ({
+            ...prev,
+            status: "playing",
+        }));
     }, []);
 
     const pauseGame = useCallback(() => {
@@ -46,8 +55,18 @@ export function useSnake() {
     }, []);
 
     const restartGame = useCallback(() => {
-        startGame();
-    }, [startGame]);
+        setGameState((prev) => ({
+            snake: createInitialSnake(),
+            food: createFood(createInitialSnake()),
+            direction: "UP",
+            nextDirection: "UP",
+            score: 0,
+            highScore: getHighScore(prev.mode),
+            status: "idle",
+            speed: INITIAL_SPEED,
+            mode: prev.mode,
+        }));
+    }, []);
 
     const changeDirection = useCallback((newDirection: Direction) => {
         setGameState((prev) => ({
@@ -65,13 +84,13 @@ export function useSnake() {
             // Use the buffered nextDirection
             const currentDirection = prev.nextDirection;
             const head = prev.snake[0];
-            const newHead = getNextPosition(head, currentDirection);
+            const newHead = getNextPosition(head, currentDirection, prev.mode);
 
             // Check collision
-            if (isCollision(newHead, prev.snake)) {
+            if (isCollision(newHead, prev.snake, prev.mode)) {
                 const newHighScore = Math.max(prev.score, prev.highScore);
                 if (newHighScore > prev.highScore) {
-                    saveHighScore(newHighScore);
+                    saveHighScore(newHighScore, prev.mode);
                 }
                 return {
                     ...prev,
@@ -127,6 +146,7 @@ export function useSnake() {
 
     return {
         gameState,
+        selectMode,
         startGame,
         pauseGame,
         restartGame,

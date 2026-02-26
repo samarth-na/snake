@@ -1,4 +1,4 @@
-import type { Position, Direction } from "../types/game";
+import type { Position, Direction, GameMode } from "../types/game";
 import { GRID_SIZE } from "../types/game";
 
 export function createInitialSnake(): Position[] {
@@ -26,29 +26,53 @@ export function createFood(snake: Position[]): Position {
 
 export function getNextPosition(
     head: Position,
-    direction: Direction
+    direction: Direction,
+    mode: GameMode
 ): Position {
+    let newX = head.x;
+    let newY = head.y;
+
     switch (direction) {
         case "UP":
-            return { x: head.x, y: head.y - 1 };
+            newY = head.y - 1;
+            break;
         case "DOWN":
-            return { x: head.x, y: head.y + 1 };
+            newY = head.y + 1;
+            break;
         case "LEFT":
-            return { x: head.x - 1, y: head.y };
+            newX = head.x - 1;
+            break;
         case "RIGHT":
-            return { x: head.x + 1, y: head.y };
+            newX = head.x + 1;
+            break;
     }
+
+    // Wrap-around logic for 'wrap' mode
+    if (mode === "wrap") {
+        if (newX < 0) newX = GRID_SIZE - 1;
+        if (newX >= GRID_SIZE) newX = 0;
+        if (newY < 0) newY = GRID_SIZE - 1;
+        if (newY >= GRID_SIZE) newY = 0;
+    }
+
+    return { x: newX, y: newY };
 }
 
-export function isCollision(position: Position, snake: Position[]): boolean {
-    // Wall collision
-    if (
-        position.x < 0 ||
-        position.x >= GRID_SIZE ||
-        position.y < 0 ||
-        position.y >= GRID_SIZE
-    ) {
-        return true;
+export function isCollision(
+    position: Position,
+    snake: Position[],
+    mode: GameMode
+): boolean {
+    // Wall collision (only in classic mode)
+    if (mode === "classic") {
+        if (
+            position.x < 0 ||
+            position.x >= GRID_SIZE ||
+            position.y < 0 ||
+            position.y >= GRID_SIZE
+        ) {
+            return true;
+        }
     }
     // Self collision (skip head which is at index 0)
     return snake
@@ -68,11 +92,15 @@ export function isOppositeDirection(a: Direction, b: Direction): boolean {
     return opposites[a] === b;
 }
 
-export function getHighScore(): number {
-    const stored = localStorage.getItem("snakeHighScore");
+export function getHighScore(mode: GameMode): number {
+    const key =
+        mode === "wrap" ? "snakeHighScoreWrap" : "snakeHighScoreClassic";
+    const stored = localStorage.getItem(key);
     return stored ? parseInt(stored, 10) : 0;
 }
 
-export function saveHighScore(score: number): void {
-    localStorage.setItem("snakeHighScore", score.toString());
+export function saveHighScore(score: number, mode: GameMode): void {
+    const key =
+        mode === "wrap" ? "snakeHighScoreWrap" : "snakeHighScoreClassic";
+    localStorage.setItem(key, score.toString());
 }

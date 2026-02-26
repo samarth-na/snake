@@ -3,19 +3,38 @@ import { useKeyboard } from "./hooks/useKeyboard";
 import { GameBoard } from "./components/GameBoard";
 import { Score } from "./components/Score";
 import { GameOverlay } from "./components/GameOverlay";
+import type { Direction } from "./types/game";
+import { isOppositeDirection } from "./utils/gameLogic";
 import "./index.css";
 
 function App() {
-  const { gameState, startGame, pauseGame, restartGame, changeDirection } =
-    useSnake();
+  const {
+    gameState,
+    selectMode,
+    startGame,
+    pauseGame,
+    restartGame,
+    changeDirection,
+  } = useSnake();
 
   useKeyboard({
     onDirectionChange: changeDirection,
     onPause: pauseGame,
     onRestart: restartGame,
+    onSelectMode: selectMode,
     currentDirection: gameState.direction,
     gameStatus: gameState.status,
   });
+
+  const handleMobileDirection = (newDirection: Direction) => {
+    // Only allow direction change if it's not opposite to current direction
+    if (
+      gameState.status === "idle" ||
+      !isOppositeDirection(newDirection, gameState.direction)
+    ) {
+      changeDirection(newDirection);
+    }
+  };
 
   return (
     <div className="app">
@@ -27,9 +46,11 @@ function App() {
         <GameOverlay
           status={gameState.status}
           score={gameState.score}
+          mode={gameState.mode}
           onStart={startGame}
           onResume={pauseGame}
           onRestart={restartGame}
+          onSelectMode={selectMode}
         />
       </div>
 
@@ -37,7 +58,7 @@ function App() {
         <div className="control-row">
           <button
             className="control-btn"
-            onClick={() => changeDirection("UP")}
+            onClick={() => handleMobileDirection("UP")}
             aria-label="Move Up"
           >
             ▲
@@ -46,21 +67,21 @@ function App() {
         <div className="control-row">
           <button
             className="control-btn"
-            onClick={() => changeDirection("LEFT")}
+            onClick={() => handleMobileDirection("LEFT")}
             aria-label="Move Left"
           >
             ◀
           </button>
           <button
             className="control-btn"
-            onClick={() => changeDirection("DOWN")}
+            onClick={() => handleMobileDirection("DOWN")}
             aria-label="Move Down"
           >
             ▼
           </button>
           <button
             className="control-btn"
-            onClick={() => changeDirection("RIGHT")}
+            onClick={() => handleMobileDirection("RIGHT")}
             aria-label="Move Right"
           >
             ▶
