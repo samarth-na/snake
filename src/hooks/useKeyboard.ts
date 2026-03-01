@@ -34,6 +34,15 @@ export function useKeyboard({
                 A: "LEFT",
                 d: "RIGHT",
                 D: "RIGHT",
+                // Vim-style bindings
+                k: "UP",
+                K: "UP",
+                j: "DOWN",
+                J: "DOWN",
+                h: "LEFT",
+                H: "LEFT",
+                l: "RIGHT",
+                L: "RIGHT",
             };
 
             const direction = keyMap[e.key];
